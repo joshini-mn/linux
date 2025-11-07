@@ -222,6 +222,27 @@ static const struct {
 	[VMENTER_L1D_FLUSH_NOT_REQUIRED] = {"not required", false},
 };
 
+/* CMPE283 A2: simple exit counters */
+static unsigned long exit_counts[256];
+static unsigned long total_exits;
+
+static void cmpe283_count_exit(int reason)
+{
+    if (reason >= 0 && reason < 256)
+        exit_counts[reason]++;
+
+    total_exits++;
+
+    if ((total_exits % 10000UL) == 0) {
+        int i;
+        pr_info("CMPE283: VMEXIT totals after %lu exits\n", total_exits);
+        for (i = 0; i < 256; i++)
+            if (exit_counts[i])
+                pr_info("CMPE283: exit %3d = %lu\n", i, exit_counts[i]);
+    }
+}
+
+
 #define L1D_CACHE_ORDER 4
 static void *vmx_l1d_flush_pages;
 
@@ -6476,6 +6497,8 @@ static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
 	struct vcpu_vmx *vmx = to_vmx(vcpu);
 	union vmx_exit_reason exit_reason = vmx_get_exit_reason(vcpu);
+	/* CMPE283 A2: count this exit now */
+        cmpe283_count_exit(exit_reason.basic);
 	u32 vectoring_info = vmx->idt_vectoring_info;
 	u16 exit_handler_index;
 
