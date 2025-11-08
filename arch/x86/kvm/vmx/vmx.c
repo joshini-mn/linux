@@ -232,7 +232,9 @@ static const char *cmpe283_exit_reason_name(__u32 reason)
         case EXIT_REASON_EXCEPTION_NMI:        return "EXCEPTION_NMI";
         case EXIT_REASON_EXTERNAL_INTERRUPT:   return "EXTERNAL_INTERRUPT";
         case EXIT_REASON_TRIPLE_FAULT:         return "TRIPLE_FAULT";
-        case EXIT_REASON_PENDING_INTERRUPT:    return "PENDING_INTERRUPT";
+#ifdef EXIT_REASON_INTERRUPT_WINDOW
+        case EXIT_REASON_INTERRUPT_WINDOW:     return "INTERRUPT_WINDOW";
+#endif
         case EXIT_REASON_NMI_WINDOW:           return "NMI_WINDOW";
         case EXIT_REASON_TASK_SWITCH:          return "TASK_SWITCH";
         case EXIT_REASON_CPUID:                return "CPUID";
