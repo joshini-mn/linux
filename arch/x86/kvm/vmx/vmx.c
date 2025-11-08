@@ -225,6 +225,54 @@ static const struct {
 /* CMPE283 A2: simple exit counters */
 static unsigned long exit_counts[256];
 static unsigned long total_exits;
+/* CMPE283 A2: VM-Exit reason names (subset is fine; default to "UNKNOWN") */
+static const char *cmpe283_exit_reason_name(unsigned int r)
+{
+	switch (r) {
+	case EXIT_REASON_EXCEPTION_NMI:       return "EXCEPTION_NMI";
+	case EXIT_REASON_EXTERNAL_INTERRUPT:  return "EXTERNAL_INTERRUPT";
+	case EXIT_REASON_TRIPLE_FAULT:        return "TRIPLE_FAULT";
+	case EXIT_REASON_INIT_SIGNAL:         return "INIT_SIGNAL";
+	case EXIT_REASON_SIPI:                return "SIPI";
+	case EXIT_REASON_SMI:                 return "SMI";
+	case EXIT_REASON_INTERRUPT_WINDOW:    return "INT_WINDOW";
+	case EXIT_REASON_CPUID:               return "CPUID";
+	case EXIT_REASON_HLT:                 return "HLT";
+	case EXIT_REASON_INVD:                return "INVD";
+	case EXIT_REASON_INVLPG:              return "INVLPG";
+	case EXIT_REASON_RDPMC:               return "RDPMC";
+	case EXIT_REASON_RDTSC:               return "RDTSC";
+	case EXIT_REASON_VMCALL:              return "VMCALL";
+	case EXIT_REASON_VMCLEAR:             return "VMCLEAR";
+	case EXIT_REASON_VMLAUNCH:            return "VMLAUNCH";
+	case EXIT_REASON_VMPTRLD:             return "VMPTRLD";
+	case EXIT_REASON_VMPTRST:             return "VMPTRST";
+	case EXIT_REASON_VMREAD:              return "VMREAD";
+	case EXIT_REASON_VMRESUME:            return "VMRESUME";
+	case EXIT_REASON_VMWRITE:             return "VMWRITE";
+	case EXIT_REASON_VMXOFF:              return "VMXOFF";
+	case EXIT_REASON_VMXON:               return "VMXON";
+	case EXIT_REASON_CR_ACCESS:           return "CR_ACCESS";
+	case EXIT_REASON_DR_ACCESS:           return "DR_ACCESS";
+	case EXIT_REASON_IO_INSTRUCTION:      return "IO_INSTRUCTION";
+	case EXIT_REASON_MSR_READ:            return "MSR_READ";
+	case EXIT_REASON_MSR_WRITE:           return "MSR_WRITE";
+	case EXIT_REASON_FAILED_VMENTRY:      return "FAILED_VMENTRY";
+	case EXIT_REASON_MCE_DURING_VMENTRY:  return "MCE_DURING_VMENTRY";
+	case EXIT_REASON_TPR_BELOW_THRESHOLD: return "TPR_BELOW_THRESHOLD";
+	case EXIT_REASON_APIC_ACCESS:         return "APIC_ACCESS";
+	case EXIT_REASON_EPT_VIOLATION:       return "EPT_VIOLATION";
+	case EXIT_REASON_EPT_MISCONFIG:       return "EPT_MISCONFIG";
+	case EXIT_REASON_PAUSE_INSTRUCTION:   return "PAUSE";
+	case EXIT_REASON_MWAIT_INSTRUCTION:   return "MWAIT";
+	case EXIT_REASON_MONITOR_TRAP_FLAG:   return "MTF";
+	case EXIT_REASON_MONITOR_INSTRUCTION: return "MONITOR";
+	case EXIT_REASON_PREEMPTION_TIMER:    return "PREEMPTION_TIMER";
+	case EXIT_REASON_WBINVD:              return "WBINVD";
+	/* add more if you want, but not required */
+	default:                              return "UNKNOWN";
+	}
+}
 
 static void cmpe283_count_exit(int reason)
 {
@@ -238,7 +286,7 @@ static void cmpe283_count_exit(int reason)
         pr_info("CMPE283: VMEXIT totals after %lu exits\n", total_exits);
         for (i = 0; i < 256; i++)
             if (exit_counts[i])
-                pr_info("CMPE283: exit %3d = %lu\n", i, exit_counts[i]);
+                pr_info("kvm_intel: CMPE283: exit %3u (%s) = %lu\n",(unsigned)i, cmpe283_exit_reason_name((unsigned)i),exit_counts[i]);
     }
 }
 
