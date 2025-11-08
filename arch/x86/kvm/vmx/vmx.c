@@ -226,52 +226,68 @@ static const struct {
 static unsigned long exit_counts[256];
 static unsigned long total_exits;
 /* CMPE283 A2: VM-Exit reason names (subset is fine; default to "UNKNOWN") */
-static const char *cmpe283_exit_reason_name(unsigned int r)
+static const char *cmpe283_exit_reason_name(__u32 reason)
 {
-	switch (r) {
-	case EXIT_REASON_EXCEPTION_NMI:       return "EXCEPTION_NMI";
-	case EXIT_REASON_EXTERNAL_INTERRUPT:  return "EXTERNAL_INTERRUPT";
-	case EXIT_REASON_TRIPLE_FAULT:        return "TRIPLE_FAULT";
-	case EXIT_REASON_INIT_SIGNAL:         return "INIT_SIGNAL";
-	case EXIT_REASON_SIPI:                return "SIPI";
-	case EXIT_REASON_SMI:                 return "SMI";
-	case EXIT_REASON_INTERRUPT_WINDOW:    return "INT_WINDOW";
-	case EXIT_REASON_CPUID:               return "CPUID";
-	case EXIT_REASON_HLT:                 return "HLT";
-	case EXIT_REASON_INVD:                return "INVD";
-	case EXIT_REASON_INVLPG:              return "INVLPG";
-	case EXIT_REASON_RDPMC:               return "RDPMC";
-	case EXIT_REASON_RDTSC:               return "RDTSC";
-	case EXIT_REASON_VMCALL:              return "VMCALL";
-	case EXIT_REASON_VMCLEAR:             return "VMCLEAR";
-	case EXIT_REASON_VMLAUNCH:            return "VMLAUNCH";
-	case EXIT_REASON_VMPTRLD:             return "VMPTRLD";
-	case EXIT_REASON_VMPTRST:             return "VMPTRST";
-	case EXIT_REASON_VMREAD:              return "VMREAD";
-	case EXIT_REASON_VMRESUME:            return "VMRESUME";
-	case EXIT_REASON_VMWRITE:             return "VMWRITE";
-	case EXIT_REASON_VMXOFF:              return "VMXOFF";
-	case EXIT_REASON_VMXON:               return "VMXON";
-	case EXIT_REASON_CR_ACCESS:           return "CR_ACCESS";
-	case EXIT_REASON_DR_ACCESS:           return "DR_ACCESS";
-	case EXIT_REASON_IO_INSTRUCTION:      return "IO_INSTRUCTION";
-	case EXIT_REASON_MSR_READ:            return "MSR_READ";
-	case EXIT_REASON_MSR_WRITE:           return "MSR_WRITE";
-	case EXIT_REASON_FAILED_VMENTRY:      return "FAILED_VMENTRY";
-	case EXIT_REASON_MCE_DURING_VMENTRY:  return "MCE_DURING_VMENTRY";
-	case EXIT_REASON_TPR_BELOW_THRESHOLD: return "TPR_BELOW_THRESHOLD";
-	case EXIT_REASON_APIC_ACCESS:         return "APIC_ACCESS";
-	case EXIT_REASON_EPT_VIOLATION:       return "EPT_VIOLATION";
-	case EXIT_REASON_EPT_MISCONFIG:       return "EPT_MISCONFIG";
-	case EXIT_REASON_PAUSE_INSTRUCTION:   return "PAUSE";
-	case EXIT_REASON_MWAIT_INSTRUCTION:   return "MWAIT";
-	case EXIT_REASON_MONITOR_TRAP_FLAG:   return "MTF";
-	case EXIT_REASON_MONITOR_INSTRUCTION: return "MONITOR";
-	case EXIT_REASON_PREEMPTION_TIMER:    return "PREEMPTION_TIMER";
-	case EXIT_REASON_WBINVD:              return "WBINVD";
-	/* add more if you want, but not required */
-	default:                              return "UNKNOWN";
-	}
+    switch (reason) {
+        case EXIT_REASON_EXCEPTION_NMI:        return "EXCEPTION_NMI";
+        case EXIT_REASON_EXTERNAL_INTERRUPT:   return "EXTERNAL_INTERRUPT";
+        case EXIT_REASON_TRIPLE_FAULT:         return "TRIPLE_FAULT";
+        case EXIT_REASON_PENDING_INTERRUPT:    return "PENDING_INTERRUPT";
+        case EXIT_REASON_NMI_WINDOW:           return "NMI_WINDOW";
+        case EXIT_REASON_TASK_SWITCH:          return "TASK_SWITCH";
+        case EXIT_REASON_CPUID:                return "CPUID";
+        case EXIT_REASON_HLT:                  return "HLT";
+        case EXIT_REASON_INVD:                 return "INVD";
+        case EXIT_REASON_INVLPG:               return "INVLPG";
+        case EXIT_REASON_RDPMC:                return "RDPMC";
+        case EXIT_REASON_RDTSC:                return "RDTSC";
+        case EXIT_REASON_VMCALL:               return "VMCALL";
+        case EXIT_REASON_VMCLEAR:              return "VMCLEAR";
+        case EXIT_REASON_VMLAUNCH:             return "VMLAUNCH";
+        case EXIT_REASON_VMPTRLD:              return "VMPTRLD";
+        case EXIT_REASON_VMPTRST:              return "VMPTRST";
+        case EXIT_REASON_VMREAD:               return "VMREAD";
+        case EXIT_REASON_VMRESUME:             return "VMRESUME";
+        case EXIT_REASON_VMWRITE:              return "VMWRITE";
+        case EXIT_REASON_VMOFF:                return "VMOFF";
+        case EXIT_REASON_VMON:                 return "VMON";
+        case EXIT_REASON_CR_ACCESS:            return "CR_ACCESS";
+        case EXIT_REASON_DR_ACCESS:            return "DR_ACCESS";
+        case EXIT_REASON_IO_INSTRUCTION:       return "IO_INSTRUCTION";
+        case EXIT_REASON_MSR_READ:             return "MSR_READ";
+        case EXIT_REASON_MSR_WRITE:            return "MSR_WRITE";
+        case EXIT_REASON_INVALID_STATE:        return "INVALID_STATE";
+        case EXIT_REASON_MSR_LOAD_FAIL:        return "MSR_LOAD_FAIL";
+        case EXIT_REASON_MWAIT_INSTRUCTION:    return "MWAIT_INSTRUCTION";
+        case EXIT_REASON_MONITOR_TRAP_FLAG:    return "MONITOR_TRAP_FLAG";
+        case EXIT_REASON_MONITOR_INSTRUCTION:  return "MONITOR_INSTRUCTION";
+        case EXIT_REASON_PAUSE_INSTRUCTION:    return "PAUSE_INSTRUCTION";
+        case EXIT_REASON_MCE_DURING_VMENTRY:   return "MCE_DURING_VMENTRY";
+        case EXIT_REASON_TPR_BELOW_THRESHOLD:  return "TPR_BELOW_THRESHOLD";
+        case EXIT_REASON_APIC_ACCESS:          return "APIC_ACCESS";
+        case EXIT_REASON_EOI_INDUCED:          return "EOI_INDUCED";
+        case EXIT_REASON_GDTR_IDTR:            return "GDTR_IDTR_ACCESS";
+        case EXIT_REASON_LDTR_TR:              return "LDTR_TR_ACCESS";
+        case EXIT_REASON_EPT_VIOLATION:        return "EPT_VIOLATION";
+        case EXIT_REASON_EPT_MISCONFIG:        return "EPT_MISCONFIG";
+        case EXIT_REASON_INVEPT:               return "INVEPT";
+        case EXIT_REASON_RDTSCP:               return "RDTSCP";
+        case EXIT_REASON_PREEMPTION_TIMER:     return "PREEMPTION_TIMER";
+        case EXIT_REASON_INVVPID:              return "INVVPID";
+        case EXIT_REASON_WBINVD:               return "WBINVD";
+        case EXIT_REASON_XSETBV:               return "XSETBV";
+        case EXIT_REASON_APIC_WRITE:           return "APIC_WRITE";
+        case EXIT_REASON_RDRAND:               return "RDRAND";
+        case EXIT_REASON_INVPCID:              return "INVPCID";
+        case EXIT_REASON_VMFUNC:               return "VMFUNC";
+#ifdef EXIT_REASON_ENCLS
+        case EXIT_REASON_ENCLS:                return "ENCLS";
+#endif
+#ifdef VMX_EXIT_REASONS_FAILED_VMENTRY
+        case VMX_EXIT_REASONS_FAILED_VMENTRY:  return "FAILED_VMENTRY";
+#endif
+        default:                               return "UNKNOWN_EXIT_REASON";
+    }
 }
 
 static void cmpe283_count_exit(int reason)
